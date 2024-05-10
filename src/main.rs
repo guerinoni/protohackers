@@ -1,3 +1,4 @@
+mod prime_time;
 mod smoke_test;
 
 #[tokio::main]
@@ -14,6 +15,6 @@ async fn main() -> anyhow::Result<()> {
             Err(e) => return Err(e.into()),
         };
 
-        tokio::spawn(smoke_test::handler(stream));
+        tokio::spawn(prime_time::handler(stream));
     }
 }
