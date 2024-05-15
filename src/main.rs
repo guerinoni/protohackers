@@ -1,3 +1,4 @@
+mod means_to_an_end;
 mod prime_time;
 mod smoke_test;
 
@@ -15,6 +16,11 @@ async fn main() -> anyhow::Result<()> {
             Err(e) => return Err(e.into()),
         };
 
-        tokio::spawn(prime_time::handler(stream));
+        tokio::spawn(async {
+            match means_to_an_end::handler(stream).await {
+                Ok(_) => (),
+                Err(e) => eprintln!("error: {:?}", e),
+            }
+        });
     }
 }
