@@ -19,6 +19,7 @@ pub async fn handler(mut stream: tokio::net::TcpStream) -> anyhow::Result<()> {
                 let price = i32::from_be_bytes(p);
 
                 db_memory.insert(timestamp, price);
+                tracing::info!("inserted {} {}", timestamp, price);
             }
             b'Q' => {
                 let l: [u8; 4] = action[1..=4].try_into()?;
@@ -27,7 +28,7 @@ pub async fn handler(mut stream: tokio::net::TcpStream) -> anyhow::Result<()> {
                 let right = i32::from_be_bytes(r);
 
                 if left > right {
-                    println!("invalid range");
+                    tracing::warn!("left is greater than right");
                     w.write_i32(0).await?;
                     continue;
                 }
@@ -45,6 +46,7 @@ pub async fn handler(mut stream: tokio::net::TcpStream) -> anyhow::Result<()> {
                 });
 
                 let mean = if counter == 0 { mean } else { mean / counter };
+                tracing::info!("mean: {}", mean);
                 w.write_i32(mean.try_into()?).await?;
             }
             _ => break,
