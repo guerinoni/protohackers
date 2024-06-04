@@ -1,3 +1,4 @@
+mod budget_chat;
 mod means_to_an_end;
 mod prime_time;
 mod smoke_test;
@@ -18,27 +19,33 @@ async fn main() -> anyhow::Result<()> {
     println!("0. Smoke Test");
     println!("1. Prime Time");
     println!("2. Means to an End");
+    println!("3. Budget Chat");
 
     let selected_exercise = input.lock().lines().next().unwrap()?;
-    let handler = chooser(selected_exercise.parse()?);
+    if &selected_exercise == "3" {
+        budget_chat::run(listener).await?;
+    } else {
+        let handler = chooser(selected_exercise.parse()?);
+        loop {
+            let stream = match listener.accept().await {
+                Ok((stream, address)) => {
+                    tracing::info!("connection received for {}", address);
 
-    loop {
-        let stream = match listener.accept().await {
-            Ok((stream, address)) => {
-                tracing::info!("connection received for {}", address);
+                    stream
+                }
+                Err(e) => return Err(e.into()),
+            };
 
-                stream
-            }
-            Err(e) => return Err(e.into()),
-        };
-
-        tokio::spawn(async move {
-            match handler(stream).await {
-                Ok(_) => (),
-                Err(e) => tracing::error!("error on handling connection: {}", e),
-            }
-        });
+            tokio::spawn(async move {
+                match handler(stream).await {
+                    Ok(_) => (),
+                    Err(e) => tracing::error!("error on handling connection: {}", e),
+                }
+            });
+        }
     }
+
+    Ok(())
 }
 
 fn chooser(
