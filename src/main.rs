@@ -2,6 +2,8 @@ mod budget_chat;
 mod means_to_an_end;
 mod prime_time;
 mod smoke_test;
+mod unusual_db;
+
 use std::io::BufRead;
 
 #[tokio::main]
@@ -12,16 +14,23 @@ async fn main() -> anyhow::Result<()> {
 
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await?;
-
     let input = std::io::stdin();
     println!("select which exercise to run: ");
     println!("0. Smoke Test");
     println!("1. Prime Time");
     println!("2. Means to an End");
     println!("3. Budget Chat");
+    println!("4. Unusual Database Program");
 
     let selected_exercise = input.lock().lines().next().unwrap()?;
+
+    if &selected_exercise == "4" {
+        unusual_db::run().await?;
+        return Ok(());
+    }
+
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await?;
+
     if &selected_exercise == "3" {
         budget_chat::run(listener).await?;
     } else {

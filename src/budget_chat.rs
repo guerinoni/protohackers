@@ -134,13 +134,6 @@ mod tests {
 
     #[tokio::test]
     async fn join_user_ok() {
-        let subscriber = tracing_subscriber::FmtSubscriber::builder()
-            .with_max_level(tracing::Level::INFO)
-            .finish();
-
-        tracing::subscriber::set_global_default(subscriber)
-            .expect("setting default subscriber failed");
-
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
             .await
             .expect("open a listener");
