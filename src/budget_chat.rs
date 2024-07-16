@@ -93,8 +93,16 @@ async fn handler(
             }
 
             msg = client.rx.recv() => {
+                if client.status != Status::Joined {
+                    continue;
+                }
+
                 if let Ok(msg) = msg {
-                    if msg.contains(&client.name) {
+                    let from_me = format!("[{}]", client.name);
+                    let im_entered = format!("* {} has entered the room", client.name);
+
+                   if msg.contains(&im_entered)  || msg.contains(&from_me) {
+                        tracing::info!("skipping the message: `{}` to {}", msg, client.name);
                         continue;
                     }
 
