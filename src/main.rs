@@ -1,5 +1,6 @@
 mod budget_chat;
 mod means_to_an_end;
+mod mob_in_the_middle;
 mod prime_time;
 mod smoke_test;
 mod unusual_db;
@@ -21,6 +22,7 @@ async fn main() -> anyhow::Result<()> {
     println!("2. Means to an End");
     println!("3. Budget Chat");
     println!("4. Unusual Database Program");
+    println!("5. Mob in the Middle");
 
     let selected_exercise = input.lock().lines().next().unwrap()?;
 
@@ -30,9 +32,14 @@ async fn main() -> anyhow::Result<()> {
     }
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await?;
+    tracing::info!("listening on {}", listener.local_addr()?);
 
     if &selected_exercise == "3" {
         budget_chat::run(listener).await?;
+    } else if &selected_exercise == "5" {
+        let chat_address = "chat.protohackers.com:16963";
+        let boguscoin = "7YWHMfk9JZe0LM0g1ZauHuiSxhI";
+        mob_in_the_middle::run(listener, chat_address, boguscoin).await?;
     } else {
         let handler = chooser(selected_exercise.parse()?);
         loop {
